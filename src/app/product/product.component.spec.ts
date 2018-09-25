@@ -1,20 +1,32 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ProductComponent } from './product.component';
 import { Product } from '../model/product';
+import { ProductService } from '../services/product.service';
 
 const testProduct = new Product('title', 'description', 'photo', 42, 2);
+
+class ProductServiceMock {
+  isTheLast() {
+    return true;
+  }
+}
 
 describe('ProductComponent', () => {
   let component: ProductComponent;
   let fixture: ComponentFixture<ProductComponent>;
+  let productService : ProductService;
 
-  beforeEach(async(() => {
+  beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [ ProductComponent ]
+      declarations: [ ProductComponent ],
+      providers: [
+        {provide: ProductService, useClass: ProductServiceMock}
+      ]
     })
     .compileComponents();
-  }));
+    productService = TestBed.get(ProductService);
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(ProductComponent);
@@ -41,17 +53,23 @@ describe('ProductComponent', () => {
     expect(component.addToBasket.emit).toHaveBeenCalled();
   });
 
-  it('should not add "last" class if stock > 1', () => {
-    component.data.stock = 2;
-    fixture.detectChanges();
-    const thumbnail = fixture.nativeElement.querySelector('.thumbnail');
-    expect(Array.prototype.includes.call(thumbnail.classList, 'last')).toBe(false);
-  });
+  it('should not add "last" class if stock > 1',
+    () => {
+      spyOn(productService, 'isTheLast').and.returnValue(false);
+      fixture.detectChanges();
+      const thumbnail = fixture.nativeElement.querySelector('.thumbnail');
+      expect(Array.prototype.includes.call(thumbnail.classList, 'last')).toBe(false);
+      expect(productService.isTheLast).toHaveBeenCalled();
+    }
+  );
 
-  it('should add "last" class if stock == 1', () => {
-    component.data.stock = 1;
-    fixture.detectChanges();
-    const thumbnail = fixture.nativeElement.querySelector('.thumbnail');
-    expect(Array.prototype.includes.call(thumbnail.classList, 'last')).toBe(true);
-  });
+  it('should add "last" class if stock == 1',
+    () => {
+      spyOn(productService, 'isTheLast').and.returnValue(true);
+      fixture.detectChanges();
+      const thumbnail = fixture.nativeElement.querySelector('.thumbnail');
+      expect(Array.prototype.includes.call(thumbnail.classList, 'last')).toBe(true);
+      expect(productService.isTheLast).toHaveBeenCalled();
+    }
+  );
 });

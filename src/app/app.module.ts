@@ -14,7 +14,9 @@ import { MenuComponent } from './menu/menu.component';
   imports: [
     BrowserModule
   ],
-  providers: [],
+  providers: [
+    {provide: 'welcomeMsg', useValue: 'Bienvenue sur Zenika Ecommerce'}
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
