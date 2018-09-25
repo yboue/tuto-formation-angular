@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 
 import { Product } from '../model/product';
+import { Customer } from '../model/customer';
 
 @Injectable({
   providedIn: 'root'
@@ -39,4 +40,7 @@ export class CustomerService {
     return this.products.reduce((previous, next) => previous + next.price, 0);
   }
 
+  checkout(customer: Customer): Observable<any> {
+    return this.http.post(this.API_URL + 'basket/confirm', customer);
+  }
 }
