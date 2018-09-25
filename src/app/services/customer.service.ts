@@ -1,4 +1,8 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
+
 import { Product } from '../model/product';
 
 @Injectable({
@@ -6,10 +10,29 @@ import { Product } from '../model/product';
 })
 export class CustomerService {
 
+  private API_URL = 'http://localhost:8080/rest/';
+
   products: Product[] = new Array<Product>();
 
-  addProduct(product: Product): void {
-    this.products.push(product);
+  constructor(
+    private http: HttpClient
+  ) {}
+
+  getBasket(): Observable<Product[]> {
+    return this.http.get(this.API_URL + 'basket')
+      .pipe(
+        map((products: any[]) => {
+          return products.map(product => {
+            return new Product(product.title, product.description, product.photo, product.price, product.stock);
+          });
+        }),
+        tap(products => this.products = products)
+      );
+ }
+
+  addProduct(product: Product): Observable<any> {
+    return this.http.post(this.API_URL + 'basket', product)
+      .pipe(tap(() => this.products.push(product)));
   }
 
   getTotal(): number {

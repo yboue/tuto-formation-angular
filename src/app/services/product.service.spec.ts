@@ -1,21 +1,34 @@
 import { TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
 import { ProductService } from './product.service';
 import { Product } from '../model/product';
 
 describe('ProductService', () => {
   let service : ProductService;
+  let http: HttpTestingController;
+
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [ProductService]
+      imports: [HttpClientTestingModule],
+      providers: [
+        ProductService,
+      ]
     });
     service = TestBed.get(ProductService);
+    http = TestBed.get(HttpTestingController);
   });
 
   it('should be created with 4 products',
     () => {
-      expect(service).toBeTruthy();
-      expect(service.getProducts().length).toBe(4);
+      const mockedResponse = [
+        new Product('abc', '', '', 0, 0),
+        new Product('def', '', '', 0, 0)
+      ];
+      service.getProducts().subscribe(products => {
+        expect(products.length).toBe(2);
+      });
+      http.expectOne('http://localhost:8080/rest/products').flush(mockedResponse);
     }
   );
 
